@@ -1,7 +1,7 @@
 #ifndef GRAPH_HPP_
 #define GRAPH_HPP_
 #include <iostream>
-#include "list\slist.hpp"
+#include "list\dlist.hpp"
 using namespace std;
 
 template <typename T, typename W>
@@ -19,8 +19,8 @@ public:
 	struct Edge;
 	struct Vertex;
 
-	slinklist<Edge*> edge_list;
-	slinklist<Vertex*> vertex_list;
+	dlinklist<Edge*> edge_list;
+	dlinklist<Vertex*> vertex_list;
 
 	Vertex* insertVertex(W O)
 	{
@@ -77,12 +77,8 @@ public:
 	void removeVertex(Vertex *V)
 	{
 		cout <<"Vertex arg: " << V << endl;
-		for(auto it = vertex_list.begin(); !(*it == V);)
-		{
-			cout << "Vertx: " <<*it << endl;
-			if(*it == V) cout << "OK!" << endl;
-			++it;
-		}
+
+
 
 	}
 
@@ -115,7 +111,7 @@ public:
 		}
 	}
 
-	slinklist<Vertex*> vertices(void)
+	dlinklist<Vertex*> vertices(void)
 	{
 		return vertex_list;
 	}
@@ -124,7 +120,7 @@ public:
 	struct Vertex
 	{
 		W data;
-		slinklist<Edge*> inclist;
+		dlinklist<Edge*> inclist;
 	};
 
 	struct Edge
