@@ -3,7 +3,7 @@
 #include <iostream>
 
 using namespace std;
-
+//mojastara
 template <typename object_t>
 struct slinklist_node_t
 {
