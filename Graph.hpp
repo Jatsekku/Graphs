@@ -1,6 +1,7 @@
 #ifndef GRAPH_HPP_
 #define GRAPH_HPP_
 #include <iostream>
+#include "list\slist.hpp"
 using namespace std;
 
 template <typename T, typename W>
@@ -75,6 +76,13 @@ public:
 
 	void removeVertex(Vertex *V)
 	{
+		cout <<"Vertex arg: " << V << endl;
+		for(auto it = vertex_list.begin(); !(*it == V);)
+		{
+			cout << "Vertx: " <<*it << endl;
+			if(*it == V) cout << "OK!" << endl;
+			++it;
+		}
 
 	}
 
