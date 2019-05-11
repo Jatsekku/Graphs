@@ -20,7 +20,14 @@ class dlinklist
 	class dlinklist_iterator;
 
 	dlinklist_iterator begin(void) {return dlinklist_iterator(head);}
-	dlinklist_iterator end(void) {return dlinklist_iterator(tail);}
+	dlinklist_iterator end(void)
+	{
+		if(head == nullptr)
+			return dlinklist_iterator(nullptr);
+		return dlinklist_iterator(tail->next);
+	}
+
+
 
 	dlinklist();
 	~dlinklist();
@@ -30,44 +37,78 @@ class dlinklist
 	void pop_front(void);
 	void pop_back(void);
 
-	dlinklist_iterator insert(dlinklist_iterator pos, T value)
+	dlinklist_iterator insert(const dlinklist_iterator& pos, T value)
 	{
-		dlinklist_node_t<T>* node_tmp = new dlinklist_node_t<T>;
-		node_tmp->data = value;
+		dlinklist_node_t<T>* node_cur = pos.node();
 
-		node_tmp->prev = pos.current_node;
-		node_tmp->next = pos.current_node->next;
+        if(node_cur == head)
+        	push_front(value);
+        else if(node_cur == tail->next)
+			push_back(value);
+		else
+		{
+			dlinklist_node_t<T>* node_tmp = new dlinklist_node_t<T>;
+			node_tmp->data = value;
+			node_tmp->next = node_cur->next;
+			node_tmp->prev = node_cur;
+			node_cur->next = node_tmp;
+			node_cur->next->prev = node_tmp;
+		}
 
-		pos.current_node->next->prev = node_tmp;
-		pos.current_node->next = node_tmp;
+		this->_size++;
+		return pos;
 	};
+
 
 	dlinklist_iterator erase(dlinklist_iterator pos)
 	{
+		dlinklist_node_t<T>* node_cur = pos.node();
 
+		if(!empty())
+		{
+			if(node_cur == head)
+				pop_front();
+			else if(node_cur == tail->next)
+				pop_back();
+			else
+			{
+				node_cur->next->prev = node_cur->prev;
+				node_cur->prev->next = node_cur->next;
+				delete node_cur;
+			}
+		}
+		this->_size--;
+		return pos;
 	};
 
-	void display_list(){
+	void display_list(){ //display list leci od head do tail jak w stl
+
 		dlinklist_node_t<T> *node_tmp = head;
 		for(int i=0;i<_size ;i++){
 		cout<<node_tmp->data<<endl;
-		node_tmp=node_tmp->prev;
+		node_tmp=node_tmp->next;
+		if(node_tmp==nullptr)cout<< "poza lista"<<endl;
 		}
 	}
+
+	dlinklist_node_t<T>* GetHead() {return this->head;};
+	dlinklist_node_t<T>* GetTail() {return this->tail;};
+
 
 	T front(void);
 	T back(void);
 
 	bool empty(void);
 	void display(void);
-	T acces(int pos);
 	int size(void);
 
 	class dlinklist_iterator
 	{
 	  public:
 		dlinklist_iterator() : current_node(head) {};
-		dlinklist_iterator(const dlinklist_node_t<T>* node_tmp) : current_node(node_tmp) {};
+		dlinklist_iterator( dlinklist_node_t<T>* node_tmp) : current_node(node_tmp) {};
+
+		dlinklist_node_t<T>* node() const{return current_node;};
 
 		dlinklist_iterator& operator=(dlinklist_node_t<T>* node_tmp)
 		{
@@ -76,9 +117,10 @@ class dlinklist
 		}
 
 		dlinklist_iterator& operator++()
-		{
-			if(current_node != nullptr)
-				current_node=current_node->next;
+		{ // przy takich begin i end curr_node jest
+			if(current_node !=nullptr ){
+				current_node=current_node->next;//przechodzimy od h do t i jedyny kierunek to jest next
+				}
 			return *this;
 		}
 
@@ -95,13 +137,18 @@ class dlinklist
 			return current_node != iterator.current_node;
 		}
 
+		bool operator==(const dlinklist_iterator& iterator)
+			{
+				return current_node == iterator.current_node;
+			}
+
 		T operator*()
 		{
 			return current_node->data;
 		}
 
 	  private:
-		const dlinklist_node_t<T>* current_node;
+		dlinklist_node_t<T>* current_node;
 	};
 
   private:
@@ -130,32 +177,22 @@ void dlinklist<T>::push_front(T value)
 {
 	dlinklist_node_t<T>* node_tmp = new dlinklist_node_t<T>;
 	node_tmp->data = value;
+	node_tmp->prev =nullptr;
+	node_tmp->next =nullptr;
 
-	/*
-	node_tmp->next = head;
-	node_tmp->prev = nullptr;
-	if(head != nullptr)
-		head->prev =  node_tmp;
-	this->head = node_tmp;
-	 */
-
-	if(head == nullptr)
+	if(head==nullptr)
 	{
-		node_tmp->next = head;
-		node_tmp->prev = tail;
 		head = node_tmp;
 		tail = node_tmp;
 	}
 	else
 	{
-		head->next = node_tmp;
-	    node_tmp->prev=head;
-		head=node_tmp;
-		node_tmp->next=nullptr;
+		head->prev=node_tmp;
+		node_tmp->next = head;
+		head = node_tmp;
 	}
 
-
-	_size++;
+	this->_size++;
 }
 
 template <typename T>
@@ -163,18 +200,23 @@ void dlinklist<T>::push_back(T value)
 {
 	dlinklist_node_t<T>* node_tmp = new dlinklist_node_t<T>;
 	node_tmp->data = value;
-	if(tail == nullptr)
+	node_tmp->prev =nullptr;
+	node_tmp->next =nullptr;
+
+
+	if (tail == nullptr)
 	{
 		head = node_tmp;
 		tail = node_tmp;
 	}
 	else
 	{
-		tail->prev = node_tmp;
-		node_tmp->next = tail;
+		tail->next = node_tmp;
+		node_tmp->prev = tail;
 		tail = node_tmp;
-		node_tmp->prev=nullptr;
+
 	}
+
 	_size++;
 }
 
@@ -208,15 +250,15 @@ void dlinklist<T>::pop_back(void)
 	{
 		dlinklist_node_t<T>* node_tmp = tail;
 
-		if(head == tail)
+		if(tail == head)
 		{
-			head == nullptr;
-			tail == nullptr;
+			tail = nullptr;
+			head = nullptr;
 		}
 		else
 		{
-			tail->next = nullptr;
 			tail = tail->prev;
+			tail->prev = nullptr;
 		}
 
 		delete node_tmp;
@@ -231,18 +273,12 @@ template <typename T>
 T dlinklist<T>::back(void) {return tail->head;}
 
 template <typename T>
-bool dlinklist<T>::empty(void) {return (size > 0)? false : true;}
-
-template <typename T>
-T dlinklist<T>::acces(int pos)
+bool dlinklist<T>::empty(void)
 {
-	dlinklist_node_t<T>* node_tmp = this->head;
-	while(pos--)
-	{
-		if(node_tmp != nullptr)
-			node_tmp = node_tmp->next;
-	}
-	return node_tmp->data;
+	if(this->_size > 0)
+		return false;
+	return true;
+
 }
 
 template <typename T>

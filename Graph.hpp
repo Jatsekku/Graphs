@@ -2,6 +2,7 @@
 #define GRAPH_HPP_
 #include <iostream>
 #include "list\dlist.hpp"
+
 using namespace std;
 
 template <typename T, typename W>
@@ -21,6 +22,12 @@ public:
 
 	dlinklist<Edge*> edge_list;
 	dlinklist<Vertex*> vertex_list;
+
+	dlinklist<Vertex*> vertices(void) {return vertex_list;}
+
+	dlinklist<Edge*> edges(void) {return edge_list;}
+
+	dlinklist<Edge*> incidentEdges(Vertex* V) {return V->inclist;}
 
 	Vertex* insertVertex(W O)
 	{
@@ -48,18 +55,23 @@ public:
 
 		V_start->inclist.push_front(edge_tmp);
 		V_end->inclist.push_front(edge_tmp);
+
 		edge_tmp->inclist_start = V_start->inclist.front();
 		edge_tmp->inclist_end = V_end->inclist.front();
+
 		edge_list.push_front(edge_tmp);
 		return edge_tmp;
 	}
 
 	bool areAdjacent(Vertex* V1, Vertex* V2)
 	{
-		for(int i = 0; i < V1->inclist.size(); i++)
-			for(int j = 0; i < V2->inclist.size(); j++)
-				if( V1->inclist.acces(i) == V2->inclist.acces(j))
-					return true;
+		if((V1->inclist.begin() != nullptr) && (V2->inclist.begin() != nullptr))
+		{
+			for(auto i = V1->inclist.begin(); i != V1->inclist.end(); i++)
+				for(auto j = V2->inclist.begin(); j != V2->inclist.end(); j++)
+					if(*i==*j)
+						return true;
+		}
 		return false;
 	}
 
@@ -76,7 +88,24 @@ public:
 
 	void removeVertex(Vertex *V)
 	{
-		cout <<"Vertex arg: " << V << endl;
+		Edge* edge_tmp;
+		for(auto j = vertex_list.begin(); j != vertex_list.end(); j++)
+		{
+			if(*j == V)
+			{
+				for(auto i = V->inclist.begin(); i != V->inclist.end(); i++)
+				{
+					cout << "chuj" << endl;
+					edge_tmp = *i;
+					cout << edge_tmp->weight << endl;
+					removeEdge(edge_tmp);
+				}
+
+				vertex_list.erase(j);
+				delete V;
+				break;
+			}
+		}
 
 
 
@@ -84,37 +113,71 @@ public:
 
 	void removeEdge(Edge* E)
 	{
+		auto i = E->start->inclist.begin();
+		auto j = E->end->inclist.begin();
+
+		for(; i != E->start->inclist.end(); i++)
+		{
+			if(*i == E->inclist_start)
+			{
+				cout << "ok1" <<endl;
+				//E->start->inclist.erase(i);
+				cout << "ok2" <<endl;
+				break;
+			}
+		}
+
+		for(; j != E->end->inclist.end(); j++)
+		{
+			if(*j == E->inclist_end)
+			{
+				cout << "ok3" << endl;
+				//E->end->inclist.erase(j);
+				cout << "ok4" <<endl;
+				break;
+			}
+		}
+
+
+		for(auto k = edge_list.begin(); k != edge_list.end(); k++)
+		{
+
+			if(*k == E)
+			{
+				E->start->inclist.erase(i);
+				E->end->inclist.erase(j);
+				edge_list.erase(k);
+				delete E;
+				break;
+			}
+		}
+
 
 	}
 
-	void displayVertexs(void)
+	void displayVertices(void)
 	{
-		Vertex* node_tmp = vertex_list.front();
-		int size = vertex_list.size();
-		int i = 0;
-		while(size --)
+		cout << "displayVertices:" << endl;
+		Vertex* vertex_tmp;
+		for(auto i = vertex_list.begin(); i != vertex_list.end(); i++)
 		{
-			node_tmp = vertex_list.acces(i++);
-			cout << node_tmp->data << endl;
+			vertex_tmp = *i;
+			cout << vertex_tmp->data << endl;
 		}
 	}
 
 	void displayEdges(void)
 	{
-		Edge* node_tmp = edge_list.front();
-		int size = edge_list.size();
-		int i = 0;
-		while(size --)
+		cout << "displayEdges:" << endl;
+		Edge* edge_tmp;
+		for(auto i = edge_list.begin(); i != edge_list.end(); i++)
 		{
-			node_tmp = edge_list.acces(i++);
-			cout << node_tmp->weight << endl;
+			edge_tmp = *i;
+			cout << edge_tmp->weight << endl;
 		}
 	}
 
-	dlinklist<Vertex*> vertices(void)
-	{
-		return vertex_list;
-	}
+
 
 
 	struct Vertex

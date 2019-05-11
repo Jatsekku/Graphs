@@ -102,6 +102,7 @@ void slinklist<T>::pop_front(void)
 	slinklist_node_t<T>* node = head->next;
 	delete head;
 	this->head = node;
+
 	_size--;
 }
 
