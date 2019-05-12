@@ -12,7 +12,8 @@ class Matrix
   public:
 	T operator()(int x, int y ) const {return _array[x + n_curr*y];};
 	T& operator()(int x, int y) 	  {return _array[x + n_curr*y];};
-	Matrix(int n);
+	T* data();
+	Matrix();
 	~Matrix(void);
 	int size(void);
 	void resize(int N);
@@ -21,9 +22,9 @@ class Matrix
 };
 
 template<typename T >
-Matrix<T>::Matrix(int n)
+Matrix<T>::Matrix()
 {
-	this->n_curr = n;
+	this->n_curr = 3;
 
 	_array = new T[n_curr * n_curr];
 	for(int xy  = 0; xy < n_curr*n_curr; xy++)
@@ -73,5 +74,13 @@ void Matrix<T>::display(void)
 		cout << endl;
 	}
 }
+
+
+template<typename T>
+T* Matrix<T>::data(void)
+{
+	return this->_array;
+}
+
 
 #endif /* MATRIX_MATRIX_HPP_ */
