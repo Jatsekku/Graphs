@@ -169,8 +169,8 @@ class GraphAdjList{
 
 	GraphAdjList(int V_amount, float G_density)
 	{
-		int V_amount_max = (V_amount*V_amount - V_amount);
-		int E_amount = G_density * V_amount_max;
+		int E_amount_max = (V_amount*V_amount - V_amount);
+		int E_amount = G_density * E_amount_max;
 		Vertex* V_curr[V_amount];
 
 		for(int i = 0; i < V_amount; i++)
